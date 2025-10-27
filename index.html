@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number System Converter</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@1,400&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #4169E1 0%, #6FA8FF 50%, #FFDAB9 100%);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      font-family: Georgia, serif !important; /* explicitly set Georgia */
+      margin-bottom: 20px;
+      font-size: 2.2rem;
+      color: white;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .converter-box {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 25px;
+      width: 360px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    label, button, .output {
+      font-family: cursive;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      background: white;
+      color: #333;
+      border: 3px solid #FFB347;
+      font-family: 'Fira Sans', sans-serif;
+      font-style: italic;
+    }
+
+    button {
+      background: #ff4081;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+      margin-top: 10px;
+      padding: 12px;
+    }
+
+    button:hover {
+      background: #e73370;
+    }
+
+    .output {
+      margin-top: 15px;
+      font-size: 1.1rem;
+      background: rgba(0,0,0,0.05);
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    input::placeholder {
+      font-family: 'Fira Sans', sans-serif;
+      font-style: italic;
+      color: #999;
+    }
+
+    select option {
+      font-family: 'Fira Sans', sans-serif;
+      font-style: italic;
+    }
+
+  </style>
+</head>
+
+<body>
+  <h1>🔢 Number System Converter</h1>
+
+  <div class="converter-box">
+    <label for="inputValue">Enter Number:</label>
+    <input type="text" id="inputValue" placeholder="e.g. 1010, 1A, 25">
+
+    <label for="fromBase">From:</label>
+    <select id="fromBase">
+      <option value="2">Binary</option>
+      <option value="8">Octal</option>
+      <option value="10" selected>Decimal</option>
+      <option value="16">Hexadecimal</option>
+    </select>
+
+    <label for="toBase">To:</label>
+    <select id="toBase">
+      <option value="2">Binary</option>
+      <option value="8">Octal</option>
+      <option value="10">Decimal</option>
+      <option value="16">Hexadecimal</option>
+    </select>
+
+    <button onclick="convertNumber()">Convert</button>
+
+    <div class="output" id="output">Result will appear here</div>
+  </div>
+
+  <script>
+    async function convertNumber() {
+      const inputValue = document.getElementById("inputValue").value.trim();
+      const fromBase = parseInt(document.getElementById("fromBase").value);
+      const toBase = parseInt(document.getElementById("toBase").value);
+      const output = document.getElementById("output");
+
+      if (inputValue === "") {
+        output.textContent = "⚠️ Please enter a number.";
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:8080/convert", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ value: inputValue, fromBase, toBase }),
+        });
+
+        const data = await response.json();
+
+        if (data.result === "Invalid Input!") {
+          output.textContent = "❌ Invalid input for the selected base!";
+        } else {
+          output.textContent = `✅ Result: ${data.result}`;
+        }
+      } catch (error) {
+        output.textContent = "❌ Could not connect to backend. Make sure the Java server is running.";
+      }
+    }
+  </script>
+</body>
+</html>
